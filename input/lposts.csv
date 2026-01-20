@@ -6,7 +6,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 4,immigration at the border,10.jpg,coachmatthews,-93:00:00,lreal,0,0
 5,#ice,12.jpg,coachmatthews,-76:04:00,lreal,0,0
 6,#energyoptions,14.jpg,coachmatthews,-73:17:00,lreal,0,0
-7,,16.jpg,coachmatthews,-71:20:00,lreal,0,0
+7,#climate,16.jpg,coachmatthews,-71:20:00,lreal,0,0
 8,gender diversity in sports ,18.jpg,coachmatthews,-56:45:00,lreal,0,0
 9,#police,20.jpg,coachmatthews,-28:44:00,lreal,0,0
 10,affirmative action in the college admissions,22.jpg,M.Kapadia92,-22:40:00,lreal,0,0
@@ -15,7 +15,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 13,#science #publichealth,28.jpg,M.Kapadia92,-96:00:00,lreal,0,0
 14,Israel–Palestine war,30.jpg,M.Kapadia92,-94:40:00,lreal,0,0
 15,Israel–Palestine war protest,32.jpg,M.Kapadia92,-91:20:00,lreal,0,0
-16,,34.jpg,M.Kapadia92,-72:20:00,lreal,0,0
+16,#Ukraine #War,34.jpg,M.Kapadia92,-72:20:00,lreal,0,0
 17,political violence in the US,36.jpg,M.Kapadia92,-78:45:00,lreal,0,0
 18,#USrallies #trangenderrights,38.jpg,M.Kapadia92,-0:59:00,lreal,0,0
 19,#tradetalks #tarriffs,40.jpg,M.Kapadia92,-61:25:00,lreal,0,0
@@ -26,7 +26,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 24,is diversity in the military make it strong or weak?,50.jpg,ancho-n-cayenne,-1:40:00,lreal,0,0
 25,is #scotus an objective institution or a collection of ideological judicial activists?,52.jpg,ancho-n-cayenne,-98:45:00,lreal,0,0
 26,speech on campus,54.jpg,ancho-n-cayenne,-75:39:00,lreal,0,0
-27,,56.jpg,ancho-n-cayenne,-71:55:00,lreal,0,0
+27,US colleges and universities #highered,56.jpg,ancho-n-cayenne,-71:55:00,lreal,0,0
 28,nice layers,57.jpg,ancho-n-cayenne,-62:41:00,freal,0,0
 29,this veggie panini was perfect! there was the perfect amount of avocado to keep it juicy. I definitely did not miss the meat or cheese!,58.jpg,ancho-n-cayenne,-33:04:00,freal,0,0
 30,I feel like I've had a lot of shaved ice/ice cream lately? but this one was matcha flavored and had pink mochi AND pink pocky garnishes <3,59.jpg,ancho-n-cayenne,-41:03:00,freal,0,0
@@ -41,7 +41,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 39,immigration at the border,10.jpg,coachmatthews,-93:00:00,lAI,0,0
 40,#ice,12.jpg,coachmatthews,-76:04:00,lAI,0,0
 41,#energyoptions,14.jpg,coachmatthews,-73:17:00,lAI,0,0
-42,,16.jpg,coachmatthews,-71:20:00,lAI,0,0
+42,#climate,16.jpg,coachmatthews,-71:20:00,lAI,0,0
 43,gender diversity in sports ,18.jpg,coachmatthews,-56:45:00,lAI,0,0
 44,#police,20.jpg,coachmatthews,-28:44:00,lAI,0,0
 45,affirmative action in the college admissions,22.jpg,M.Kapadia92,-22:40:00,lAI,0,0
@@ -50,7 +50,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 48,#science #publichealth,28.jpg,M.Kapadia92,-96:00:00,lAI,0,0
 49,Israel–Palestine war,30.jpg,M.Kapadia92,-94:40:00,lAI,0,0
 50,Israel–Palestine war protest,32.jpg,M.Kapadia92,-91:20:00,lAI,0,0
-51,,34.jpg,M.Kapadia92,-72:20:00,lAI,0,0
+51,#Ukraine #War,34.jpg,M.Kapadia92,-72:20:00,lAI,0,0
 52,political violence in the US,36.jpg,M.Kapadia92,-78:45:00,lAI,0,0
 53,#USrallies #trangenderrights,38.jpg,M.Kapadia92,-0:59:00,lAI,0,0
 54,#tradetalks #tarriffs,40.jpg,M.Kapadia92,-61:25:00,lAI,0,0
@@ -61,7 +61,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 59,is diversity in the military make it strong or weak?,50.jpg,ancho-n-cayenne,-1:40:00,lAI,0,0
 60,is #scotus an objective institution or a collection of ideological judicial activists?,52.jpg,ancho-n-cayenne,-98:45:00,lAI,0,0
 61,speech on campus,54.jpg,ancho-n-cayenne,-75:39:00,lAI,0,0
-62,,56.jpg,ancho-n-cayenne,-71:55:00,lAI,0,0
+62,US colleges and universities #highered,56.jpg,ancho-n-cayenne,-71:55:00,lAI,0,0
 63,nice layers,57.jpg,ancho-n-cayenne,-62:41:00,fAI,0,0
 64,this veggie panini was perfect! there was the perfect amount of avocado to keep it juicy. I definitely did not miss the meat or cheese!,58.jpg,ancho-n-cayenne,-33:04:00,fAI,0,0
 65,I feel like I've had a lot of shaved ice/ice cream lately? but this one was matcha flavored and had pink mochi AND pink pocky garnishes <3,59.jpg,ancho-n-cayenne,-41:03:00,fAI,0,0

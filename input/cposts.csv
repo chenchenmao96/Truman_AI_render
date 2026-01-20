@@ -6,7 +6,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 4,immigration at the border,9.jpg,coachmatthews,-93:00:00,creal,0,0
 5,#ice,11.jpg,coachmatthews,-76:04:00,creal,0,0
 6,#energyoptions,13.jpg,coachmatthews,-73:17:00,creal,0,0
-7,,15.jpg,coachmatthews,-71:20:00,creal,0,0
+7,#climate,15.jpg,coachmatthews,-71:20:00,creal,0,0
 8,gender diversity in sports?,17.jpg,coachmatthews,-56:45:00,creal,0,0
 9,#police,19.jpg,coachmatthews,-28:44:00,creal,0,0
 10,affirmative action in the college admissions,21.jpg,M.Kapadia92,-22:40:00,creal,0,0
@@ -15,7 +15,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 13,#science #publichealth,27.jpg,M.Kapadia92,-96:00:00,creal,0,0
 14,Israel–Palestine war,29.jpg,M.Kapadia92,-94:40:00,creal,0,0
 15,Israel–Palestine war protest,31.jpg,M.Kapadia92,-91:20:00,creal,0,0
-16,,33.jpg,M.Kapadia92,-72:20:00,creal,0,0
+16,#Ukraine #War,33.jpg,M.Kapadia92,-72:20:00,creal,0,0
 17,political violence in the US,35.jpg,M.Kapadia92,-78:45:00,creal,0,0
 18,#USrallies #trangenderrights,37.jpg,M.Kapadia92,-0:59:00,creal,0,0
 19,#tradetalks #tarriffs,39.jpg,M.Kapadia92,-61:25:00,creal,0,0
@@ -26,7 +26,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 24,is diversity in the military make it strong or weak?,49.jpg,ancho-n-cayenne,-1:40:00,creal,0,0
 25,is #scotus an objective institution or a collection of ideological judicial activists?,51.jpg,ancho-n-cayenne,-98:45:00,creal,0,0
 26,speech on campus,53.jpg,ancho-n-cayenne,-75:39:00,creal,0,0
-27,,55.jpg,ancho-n-cayenne,-71:55:00,creal,0,0
+27,US colleges and universities #highered,55.jpg,ancho-n-cayenne,-71:55:00,creal,0,0
 28,guns in America...,1.jpg,coachmatthews,-20:35:00,cAI,0,0
 29,#guns #safety,3.jpg,coachmatthews,-11:13:00,cAI,0,0
 30,#abortion #protest,5.jpg,coachmatthews,-0:45:00,cAI,0,0
@@ -34,7 +34,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 32,immigration at the border,9.jpg,coachmatthews,-93:00:00,cAI,0,0
 33,#ice,11.jpg,coachmatthews,-76:04:00,cAI,0,0
 34,#energyoptions,13.jpg,coachmatthews,-73:17:00,cAI,0,0
-35,,15.jpg,coachmatthews,-71:20:00,cAI,0,0
+35,#climate,15.jpg,coachmatthews,-71:20:00,cAI,0,0
 36,gender diversity in sports?,17.jpg,coachmatthews,-56:45:00,cAI,0,0
 37,#police,19.jpg,coachmatthews,-28:44:00,cAI,0,0
 38,affirmative action in the college admissions,21.jpg,M.Kapadia92,-22:40:00,cAI,0,0
@@ -43,7 +43,7 @@ id,body,picture,actor,time,class,num_likes,num_shares
 41,#science #publichealth,27.jpg,M.Kapadia92,-96:00:00,cAI,0,0
 42,Israel–Palestine war,29.jpg,M.Kapadia92,-94:40:00,cAI,0,0
 43,Israel–Palestine war protest,31.jpg,M.Kapadia92,-91:20:00,cAI,0,0
-44,,33.jpg,M.Kapadia92,-72:20:00,cAI,0,0
+44,#Ukraine #War,33.jpg,M.Kapadia92,-72:20:00,cAI,0,0
 45,political violence in the US,35.jpg,M.Kapadia92,-78:45:00,cAI,0,0
 46,#USrallies #trangenderrights,37.jpg,M.Kapadia92,-0:59:00,cAI,0,0
 47,#tradetalks #tarriffs,39.jpg,M.Kapadia92,-61:25:00,cAI,0,0
@@ -54,4 +54,4 @@ id,body,picture,actor,time,class,num_likes,num_shares
 52,is diversity in the military make it strong or weak?,49.jpg,ancho-n-cayenne,-1:40:00,cAI,0,0
 53,is #scotus an objective institution or a collection of ideological judicial activists?,51.jpg,ancho-n-cayenne,-98:45:00,cAI,0,0
 54,speech on campus,53.jpg,ancho-n-cayenne,-75:39:00,cAI,0,0
-55,,55.jpg,ancho-n-cayenne,-71:55:00,cAI,0,0
+55,US colleges and universities #highered,55.jpg,ancho-n-cayenne,-71:55:00,cAI,0,0

@@ -23,9 +23,9 @@ async function getTopicScripts(scriptTO) {
     if (scriptTO === "food") {
         for (let pic = 57; pic <= 63; pic++) {
             desired.push({ class: "freal", picture: `${pic}.jpg` });
-            desired.push({ class: "fAI", picture: `${pic}.jpg` });
+            desired.push({ class: "fAI",   picture: `${pic}.jpg` });
         }
-    }
+    } 
     // 1~28：每个 topic 4条
     else {
         const topicNum = parseInt(scriptTO, 10);
@@ -38,9 +38,9 @@ async function getTopicScripts(scriptTO) {
 
         desired = [
             { class: "creal", picture: `${pic1}.jpg` },
-            { class: "cAI", picture: `${pic1}.jpg` },
+            { class: "cAI",   picture: `${pic1}.jpg` },
             { class: "lreal", picture: `${pic2}.jpg` },
-            { class: "lAI", picture: `${pic2}.jpg` },
+            { class: "lAI",   picture: `${pic2}.jpg` },
         ];
     }
 
@@ -48,13 +48,13 @@ async function getTopicScripts(scriptTO) {
     const scripts = await Script.find({
         $or: desired.map(d => ({ class: d.class, picture: d.picture }))
     })
-        .populate("actor")
-        .populate({
-            path: "comments.actor",
-            model: "Actor",
-            options: { strictPopulate: false }
-        })
-        .exec();
+    .populate("actor")
+    .populate({
+        path: "comments.actor",
+        model: "Actor",
+        options: { strictPopulate: false }
+    })
+    .exec();
 
     // 按 desired 顺序排好
     const map = new Map();
@@ -100,13 +100,13 @@ exports.getScriptFeed = async (req, res, next) => {
         let scriptPO = req.query.PO;
         let scriptPE = req.query.PE;
         let scriptUID = req.query.UID;
-        let scriptTO = req.query.TO;
+        let scriptTO = req.query.TO; 
         let admin = req.query.admin;
-
+    
         if (!scriptUID) {
             return res.status(400).send('Prolific ID is required');
         }
-
+    
         // Check if the user already exists
         let existingUser = await User.findOne({ prolificID: scriptUID }).exec();
         console.log('Existing User:', existingUser);
@@ -119,9 +119,9 @@ exports.getScriptFeed = async (req, res, next) => {
                 AL: scriptPO,
                 CN: scriptPE,
                 prolificID: scriptUID,
-                isAdmin: admin,
+                isAdmin:admin,
             });
-
+    
             await existingUser.save();
         }
         else {
@@ -129,121 +129,111 @@ exports.getScriptFeed = async (req, res, next) => {
             scriptPO = existingUser.PO;
             scriptPE = existingUser.PE;
             admin = existingUser.isAdmin;
-        }
-
+        } 
+    
         req.logIn(existingUser, async (err) => {
-
-
-            const one_day = 86400000; // Number of milliseconds in a day.
-            const time_now = Date.now(); // Current date.
-            const time_diff = time_now - req.user.createdAt; // Time difference between now and user account creation, in milliseconds.
-            const time_limit = time_diff - one_day; // Date in milliseconds 24 hours ago from now.
-            const user = await User.findById(req.user.id);
-            if (!user) {
-                throw new Error('User not found');
-            }
-            const current_day = Math.floor(time_diff / one_day);
-            if (current_day < process.env.NUM_DAYS) {
-                user.study_days[current_day] += 1;
-            }
-
-            if (admin) {
-                let script_feed = await Script.find()
-                    .sort('-time')
-                    .populate('actor')
-                    .exec();
-
-                let user_posts = user.getPostInPeriod(0, time_diff);
-                user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
-
-                const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true);
-                console.log("Script Size is now: " + finalfeed.length);
-                await user.save();
-                res.render('script', { script: finalfeed, showNewPostIcon: true, user: user });
-            } else if (scriptTO && scriptTO !== "null" && scriptTO !== "undefined" && scriptTO !== "") {
-                const script_feed = await getTopicScripts(scriptTO);
-
-                if (!script_feed || script_feed.length === 0) {
-                    return res.status(404).send("No topic script feed found.");
+            
+   
+                const one_day = 86400000; // Number of milliseconds in a day.
+                const time_now = Date.now(); // Current date.
+                const time_diff = time_now - req.user.createdAt; // Time difference between now and user account creation, in milliseconds.
+                const time_limit = time_diff - one_day; // Date in milliseconds 24 hours ago from now.
+                const user = await User.findById(req.user.id);
+                    if (!user) {
+                        throw new Error('User not found');
+                    }
+                const current_day = Math.floor(time_diff / one_day);
+                if (current_day < process.env.NUM_DAYS) {
+                    user.study_days[current_day] += 1;
                 }
-
-                let user_posts = user.getPostInPeriod(0, time_diff);
-                user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
-
-                const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true, true);
-
-                return res.render("script", { script: finalfeed, script_type: scriptTO, user: user });
-            } else {
-                let query = {};
-
-                if (scriptPE === "l") {
-                    query = { "class": { $in: ["lAI", "lreal", "fAI", "freal"] } };
-                } else {
-                    query = { "class": { $in: ["cAI", "creal", "fAI", "freal"] } };
-                }
-
-                let sortCriteria = {};
-
-
-                if (scriptPO === "0") {
-                    sortCriteria = { time: -1 }; // Sort by creation time, latest first
-                } else if (scriptPO === "40") {
-                    sortCriteria = { likes: -1 }; // Sort by number of sum, highest first
-                } else {
-                    // Default sorting (shuffle)
-                    sortCriteria = { _id: 1 }; // This line is a placeholder for sorting by ID if shuffling is not done server-side
-
-                }
-
-                let script_feed = await Script.find(query)
-                    .sort(sortCriteria)
-                    .populate('actor')
-                    .populate({
-                        path: 'comments.actor',
-                        model: 'Actor',
-                        options: { strictPopulate: false }
-                    })
-                    .exec();
-
-                // Shuffle the posts if no specific sorting is applied
-                if (["r"].includes(scriptPO)) {
-                    //script_feed = _.shuffle(script_feed);
-                    const groupId = `${scriptPE}-your-group-id`; // Combine content type with group ID
+    
+                if (admin) {
+                    let script_feed = await Script.find()
+                        .sort('-time')
+                        .populate('actor')
+                        .exec();
+    
+                    let user_posts = user.getPostInPeriod(0, time_diff);
+                    user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
+    
+                    const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true);
+                    console.log("Script Size is now: " + finalfeed.length);
+                    await user.save();
+                    res.render('script', { script: finalfeed, showNewPostIcon: true, user: user });
+                } else if (scriptTO && scriptTO !== "null" && scriptTO !== "undefined" && scriptTO !== "") {
+                    
+                }else {
+                    let query = {};
+    
+                    if (scriptPE === "l") {
+                        query = { "class": { $in: ["lAI", "lreal", "fAI", "freal"] }   };
+                    } else {
+                        query = { "class": { $in: ["cAI", "creal",  "fAI", "freal"] }   };
+                    }
+    
+                    let sortCriteria = {};
+                    
+                    
+                    if (scriptPO === "0") {
+                        sortCriteria = { time: -1 }; // Sort by creation time, latest first
+                    } else if (scriptPO === "40") {
+                        sortCriteria = { likes: -1 }; // Sort by number of sum, highest first
+                    } else {
+                        // Default sorting (shuffle)
+                        sortCriteria = { _id: 1 }; // This line is a placeholder for sorting by ID if shuffling is not done server-side
+                     
+                    }
+    
+                    let script_feed = await Script.find(query)
+                        .sort(sortCriteria)
+                        .populate('actor')
+                        .populate({
+                            path: 'comments.actor',
+                            model: 'Actor',
+                            options: { strictPopulate: false }
+                        })
+                        .exec();
+    
+                    // Shuffle the posts if no specific sorting is applied
+                    if (["r"].includes(scriptPO)) {
+                        //script_feed = _.shuffle(script_feed);
+                        const groupId = `${scriptPE}-your-group-id`; // Combine content type with group ID
                     //const order = await getOrCreateFeedOrder(groupId, script_feed);
                     //script_feed.sort((a, b) => order.indexOf(a._id.toString()) - order.indexOf(b._id.toString()));
-                    const order = await getOrCreateFeedOrder(groupId, script_feed);
-                    script_feed.sort((a, b) => order.indexOf(a._id.toString()) - order.indexOf(b._id.toString()));
+                        const order = await getOrCreateFeedOrder(groupId, script_feed);
+                        script_feed.sort((a, b) => order.indexOf(a._id.toString()) - order.indexOf(b._id.toString()));
+                    }
+                    else if(["e"].includes(scriptPO))
+                    {
+                        script_feed.forEach(script => {
+                            script.totalInteractions = (script.likes || 0) + (script.shares || 0) + (script.comments ? script.comments.length : 0);
+                        });
+                    
+                        // Sort by totalInteractions in descending order
+                        script_feed.sort((a, b) => b.totalInteractions - a.totalInteractions);
+
+                    }
+    
+                    // Ensure script_feed is not empty
+                    if (!script_feed || script_feed.length === 0) {
+                        console.log("No script feed found for the given query and sorting criteria.");
+                        return res.status(404).send("No script feed found.");
+                    }
+                    let user_posts = user.getPostInPeriod(0, time_diff);
+                    user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
+                
+                    // Generate the final feed using the helper function
+                    const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true, true);
+                
+                    res.render('script', { script: finalfeed, script_type: "", user: user });
                 }
-                else if (["e"].includes(scriptPO)) {
-                    script_feed.forEach(script => {
-                        script.totalInteractions = (script.likes || 0) + (script.shares || 0) + (script.comments ? script.comments.length : 0);
-                    });
-
-                    // Sort by totalInteractions in descending order
-                    script_feed.sort((a, b) => b.totalInteractions - a.totalInteractions);
-
-                }
-
-                // Ensure script_feed is not empty
-                if (!script_feed || script_feed.length === 0) {
-                    console.log("No script feed found for the given query and sorting criteria.");
-                    return res.status(404).send("No script feed found.");
-                }
-                let user_posts = user.getPostInPeriod(0, time_diff);
-                user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
-
-                // Generate the final feed using the helper function
-                const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true, true);
-
-                res.render('script', { script: finalfeed, script_type: "", user: user });
-            }
-
+            
         });
     } catch (err) {
         next(err);
     }
 };
-exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
+exports.postUpdateFeedActionNoLOGIN = async(req, res, next) => {
     try {
 
         const prolificID = req.query.UID;
@@ -259,7 +249,7 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
         console.log('User found:', user); // Debugging: log the user
         console.log(user);
         // Check if user has interacted with the post before.
-        let feedIndex = _.findIndex(user.feedAction, function (o) { return o.post == req.body.postID; });
+        let feedIndex = _.findIndex(user.feedAction, function(o) { return o.post == req.body.postID; });
 
         // If the user has not interacted with the post before, add the post to user.feedAction.
         if (feedIndex == -1) {
@@ -289,10 +279,10 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
             const isUserComment = (req.body.isUserComment == 'true');
             // Check if user has interacted with the comment before.
             let commentIndex = (isUserComment) ?
-                _.findIndex(user.feedAction[feedIndex].comments, function (o) {
+                _.findIndex(user.feedAction[feedIndex].comments, function(o) {
                     return o.new_comment_id == req.body.commentID && o.new_comment == isUserComment
                 }) :
-                _.findIndex(user.feedAction[feedIndex].comments, function (o) {
+                _.findIndex(user.feedAction[feedIndex].comments, function(o) {
                     return o.comment == req.body.commentID && o.new_comment == isUserComment
                 });
 
@@ -368,7 +358,7 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
     }
 };
 
-exports.getScript = async (req, res, next) => {
+exports.getScript = async(req, res, next) => {
     try {
         const one_day = 86400000; // Number of milliseconds in a day.
         const time_now = Date.now(); // Current date.
@@ -409,7 +399,7 @@ exports.getScript = async (req, res, next) => {
 
         // Array of any user-made posts within the past 24 hours, sorted by time they were created.
         let user_posts = user.getPostInPeriod(time_limit, time_diff);
-        user_posts.sort(function (a, b) {
+        user_posts.sort(function(a, b) {
             return b.relativeTime - a.relativeTime;
         });
 
@@ -417,7 +407,7 @@ exports.getScript = async (req, res, next) => {
         const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true);
         console.log("Script Size is now: " + finalfeed.length);
         await user.save();
-        res.render('script', { script: finalfeed, showNewPostIcon: true, user: user });
+        res.render('script', { script: finalfeed, showNewPostIcon: true, user: user  });
     } catch (err) {
         next(err);
     }
@@ -427,7 +417,7 @@ exports.getScript = async (req, res, next) => {
  * Post /post/new
  * Record a new user-made post. Include any actor replies (comments) that go along with it.
  */
-exports.newPost = async (req, res) => {
+exports.newPost = async(req, res) => {
     try {
         const user = await User.findById(req.user.id).exec();
         if (req.file) {
@@ -486,11 +476,11 @@ exports.newPost = async (req, res) => {
  * POST /feed/
  * Record user's actions on ACTOR posts. 
  */
-exports.postUpdateFeedAction = async (req, res, next) => {
+exports.postUpdateFeedAction = async(req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         // Check if user has interacted with the post before.
-        let feedIndex = _.findIndex(user.feedAction, function (o) { return o.post == req.body.postID; });
+        let feedIndex = _.findIndex(user.feedAction, function(o) { return o.post == req.body.postID; });
 
         // If the user has not interacted with the post before, add the post to user.feedAction.
         if (feedIndex == -1) {
@@ -520,10 +510,10 @@ exports.postUpdateFeedAction = async (req, res, next) => {
             const isUserComment = (req.body.isUserComment == 'true');
             // Check if user has interacted with the comment before.
             let commentIndex = (isUserComment) ?
-                _.findIndex(user.feedAction[feedIndex].comments, function (o) {
+                _.findIndex(user.feedAction[feedIndex].comments, function(o) {
                     return o.new_comment_id == req.body.commentID && o.new_comment == isUserComment
                 }) :
-                _.findIndex(user.feedAction[feedIndex].comments, function (o) {
+                _.findIndex(user.feedAction[feedIndex].comments, function(o) {
                     return o.comment == req.body.commentID && o.new_comment == isUserComment
                 });
 
@@ -610,11 +600,11 @@ exports.postUpdateFeedAction = async (req, res, next) => {
  * POST /userPost_feed/
  * Record user's actions on USER posts. 
  */
-exports.postUpdateUserPostFeedAction = async (req, res, next) => {
+exports.postUpdateUserPostFeedAction = async(req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         // Find the index of object in user.posts
-        let feedIndex = _.findIndex(user.posts, function (o) { return o.postID == req.body.postID; });
+        let feedIndex = _.findIndex(user.posts, function(o) { return o.postID == req.body.postID; });
 
         if (feedIndex == -1) {
             // Should not happen.
@@ -636,7 +626,7 @@ exports.postUpdateUserPostFeedAction = async (req, res, next) => {
         }
         // User interacted with a comment on the post.
         else if (req.body.commentID) {
-            const commentIndex = _.findIndex(user.posts[feedIndex].comments, function (o) {
+            const commentIndex = _.findIndex(user.posts[feedIndex].comments, function(o) {
                 return o.commentID == req.body.commentID && o.new_comment == (req.body.isUserComment == 'true');
             });
             if (commentIndex == -1) {
