@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     numPosts: { type: Number, default: -1 }, // Indicates the # of user posts the user has made. Count begins at 0.
     numComments: { type: Number, default: -1 }, // Indicates the # of comments on (user and actor) posts the user has made. This value is used for indexing and the commentID of user comments on (user and actor) posts. Count begins at 0.
     numActorReplies: { type: Number, default: -1 }, // Indicates the # of actor replies on user posts, it is used for indexing and the commentID of actor comments on user posts. Count begins at 0.
-    numPostDisLikes: { type: Number, default: 0 },
+
     numPostLikes: { type: Number, default: 0 }, // Indicates the # of actor posts liked. Count begins at 1.
     numCommentLikes: { type: Number, default: 0 }, // Indicates the # of actor comments liked. Count begins at 1.
     numPostShared:{ type: Number, default: 0 }, // indicates the # of actor posts has been shared
@@ -53,8 +53,6 @@ const userSchema = new mongoose.Schema({
         picture: String, // Picture (file path) for post
         liked: { type: Boolean, default: false }, // Indicates if the user has liked the post
         likes: { type: Number, default: 0 }, // Indicates the number of likes on the post by actors (excludes the user's own like)
-        disliked: { type: Boolean, default: false }, // Indicates if the user has disliked the post
-        dislikes: { type: Number, default: 0 }, // Indicates the number of dislikes on the post by actors (excludes the user's own dislike)
 
         // Comments on post
         comments: [new Schema({
@@ -67,9 +65,7 @@ const userSchema = new mongoose.Schema({
             liked: { type: Boolean, default: false }, // Indicates if the user has liked the comment
             disliked: { type: Boolean, default: false }, // Indicates if the user has disliked the comment
             flagged: { type: Boolean, default: false }, // Indicates if the user has flagged the comment
-            likes: { type: Number, default: 0 } ,// Indicates the # of likes on the comment by actors (excludes the user's own like),
-            dislikes: { type: Number, default: 0 } // Indicates the # of dislikes on the comment by actors (excludes the user's own like)
-            
+            likes: { type: Number, default: 0 } // Indicates the # of likes on the comment by actors (excludes the user's own like)
         }, { versionKey: false })],
 
         absTime: Date, // Absolute Time; Indicates the exact time the post was made
@@ -97,9 +93,7 @@ const userSchema = new mongoose.Schema({
         GeneralTimeSpent: Number, // Time spent on website
         GeneralPostNumber: Number, // # of posts made by user
         GeneralPostLikes: Number, // # of posts liked
-        GeneralPostDisLikes: Number, // # of posts disliked
         GeneralCommentLikes: Number, // # of comments liked
-        GeneralCommentDisLikes: Number, // # of comments disliked
         GeneralPostComments: Number, // # of comments left on posts
     },
 
@@ -109,13 +103,11 @@ const userSchema = new mongoose.Schema({
         postClass: String, // Indicates the type of post. Used for post classification purposes.
         mostRecentTime: Date, // Absolute Time, indicates the most recent time the post was viewed
         rereadTimes: { type: Number, default: 0 }, // Indicates the # of times the post has been viewed by user.
-        disliked: { type: Boolean, default: false }, // Indicates if the user has disliked the post
+
         liked: { type: Boolean, default: false }, // Indicates if the user has liked the post
         shared: { type: Boolean, default: false }, // Indicates if the user has flagged the post
         likeTime: [Date], // List of absolute times when the user has liked the post
         unlikeTime: [Date], // List of absolute times when the user has unliked the post
-        dislikeTime: [Date], // List of absolute times when the user has disliked the post
-        undislikeTime: [Date], // List of absolute times when the user has undisliked the post
         shareTime: [Date], // List of absolute times when the user has shared  the post
         unshareTime: [Date], // List of absolute times when the user has unshared  the post
         readTime: [Number], // List of durations the user spent looking at the post in milliseconds (we do not record times less than 1.5 seconds and more than 24 hrs)
@@ -221,7 +213,6 @@ userSchema.methods.logPostStats = function logPage() {
         GeneralTimeSpent: this.pageTimes.reduce((partialSum, a) => partialSum + a, 0),
         GeneralPostNumber: this.numPosts + 1,
         GeneralPostLikes: this.feedAction.filter(feedAction => feedAction.liked).length,
-        GeneralPostDisLikes: this.feedAction.filter(feedAction => feedAction.disliked).length,
         GeneralCommentLikes: counts[0],
         GeneralPostComments: counts[1]
     }

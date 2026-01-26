@@ -1,75 +1,3 @@
-function getCountTextNode(btn) {
-    return btn.contents().filter(function () {
-        return this.nodeType === 3; // text node
-    }).get(0);
-}
-
-function getCount(btn) {
-    const node = getCountTextNode(btn);
-    if (!node) return { node: null, count: 0 };
-    const count = parseInt(node.nodeValue.trim(), 10) || 0;
-    return { node, count };
-}
-
-function setCount(btn, newCount) {
-    const { node } = getCount(btn);
-    if (node) node.nodeValue = ` ${newCount}`;
-}
-
-function toggleReaction(e, reactionType) {
-    const btn = $(e.target).closest(`.ui.${reactionType}.button`);
-    const card = btn.closest(".ui.fluid.card");
-
-    const postID = card.attr("postID");
-    const postClass = card.attr("postClass");
-    const currDate = Date.now();
-    const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-    // ✅ like / dislike 都用 red
-    const activeClass = "red";
-    const oppositeType = reactionType === "like" ? "dislike" : "like";
-    const oppositeBtn = card.find(`.ui.${oppositeType}.button`);
-
-    let { count: currentCount } = getCount(btn);
-    const isActive = btn.hasClass(activeClass);
-
-    function postToServer(payload) {
-        if (card.attr("type") === "userPost") {
-            $.post("/userPost_feed", { postID, _csrf: csrfToken, ...payload });
-        } else {
-            $.post("/feed", { postID, postClass, _csrf: csrfToken, ...payload });
-        }
-    }
-
-    // ✅ 再点一次：取消 reaction
-    if (isActive) {
-        btn.removeClass(activeClass);
-        currentCount -= 1;
-        setCount(btn, currentCount);
-
-        postToServer({ [`un${reactionType}`]: currDate });
-        return;
-    }
-
-    // ✅ 互斥：如果另一边已经点亮，就取消它
-    if (oppositeBtn.length && oppositeBtn.hasClass(activeClass)) {
-        oppositeBtn.removeClass(activeClass);
-        let { count: oppositeCount } = getCount(oppositeBtn);
-        oppositeCount -= 1;
-        setCount(oppositeBtn, oppositeCount);
-
-        postToServer({ [`un${oppositeType}`]: currDate });
-    }
-
-    // ✅ 开启当前 reaction
-    btn.addClass(activeClass);
-    currentCount += 1;
-    setCount(btn, currentCount);
-
-    postToServer({ [reactionType]: currDate });
-}
-
-
 function likePost(e) {
     const target = $(e.target).closest('.ui.like.button');
     const postID = target.closest(".ui.fluid.card").attr("postID");
@@ -448,9 +376,8 @@ $(window).on('load', () => {
     //Create a new Comment
     $("i.big.send.link.icon").on('click', addComment);
 
-    //Like/Unlike Post //$('.like.button').on('click', likePost);
-    $('.like.button').on('click', (e) => toggleReaction(e, 'like'));
-    $('.dislike.button').on('click', (e) => toggleReaction(e, 'dislike'));
+    //Like/Unlike Post
+    $('.like.button').on('click', likePost);
 
     //Flag Post
     $('.flag.button').on('click', flagPost);

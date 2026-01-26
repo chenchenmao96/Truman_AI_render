@@ -13,21 +13,17 @@
   .content
     .description=val.body
     .myTimer.hidden 0
-  .ui.bottom.four.attached.icon.buttons
-    .ui.labeled.button(tabindex='0')
-      .ui.like.button(class=val.like ? "red" : null)
-        i.thumbs.up.icon
-        |  #{val.likes}
-    .ui.labeled.button(tabindex='0')
-      .ui.dislike.button(class=val.dislike ? "red" : null)
-        i.thumbs.down.icon
-        |  #{val.dislikes}
+  .ui.bottom.three.attached.icon.buttons
     .ui.reply.button(tabindex='0')
       i.comment.icon
       |  #{val.comments.length}
-    .ui.flag.button(tabindex='0')(class=val.share ? "red" : null)
+    .ui.flag.button(tabindex='0')(class=val.share? "red": null) 
       i.retweet.icon
       |  #{val.shares}
+    .ui.labeled.button(tabindex='0')
+      .ui.like.button(class=val.like? "red": null)
+        i.heart.icon
+        |  #{val.likes}
   if val.comments.length > 0
     .content
       .ui.comments

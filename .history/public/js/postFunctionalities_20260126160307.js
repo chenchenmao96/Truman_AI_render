@@ -448,7 +448,7 @@ $(window).on('load', () => {
     //Create a new Comment
     $("i.big.send.link.icon").on('click', addComment);
 
-    //Like/Unlike Post //$('.like.button').on('click', likePost);
+    //Like/Unlike Post //$('.like.button').on('click', likePost)
     $('.like.button').on('click', (e) => toggleReaction(e, 'like'));
     $('.dislike.button').on('click', (e) => toggleReaction(e, 'dislike'));
 

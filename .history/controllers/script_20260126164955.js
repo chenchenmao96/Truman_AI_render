@@ -320,7 +320,7 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
                 user.feedAction[feedIndex].comments[commentIndex].liked = false;
                 if (req.body.isUserComment != 'true') user.numCommentLikes--;
             }
-
+        
             // User flagged the comment.
             else if (req.body.flag) {
                 const flag = req.body.flag;
@@ -351,9 +351,7 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
                 user.feedAction[feedIndex].liked = false;
                 user.numPostLikes--;
             } // user dislike the post 
-            else if (req.body.dislike) {
-                console.log("HIT DISLIKE BRANCH", req.body.postID);
-                console.log("before push:", user.feedAction[feedIndex].dislikeTime);
+             else if (req.body.dislike) {
                 const dislike = req.body.dislike;
                 user.feedAction[feedIndex].dislikeTime.push(dislike);
                 user.feedAction[feedIndex].disliked = true;
@@ -361,8 +359,6 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
             }
             // User undisliked the post.
             else if (req.body.undislike) {
-                console.log("HIT DISLIKE BRANCH", req.body.postID);
-                console.log("before push:", user.feedAction[feedIndex].dislikeTime);
                 const undislike = req.body.undislike;
                 user.feedAction[feedIndex].undislikeTime.push(undislike);
                 user.feedAction[feedIndex].disliked = false;
@@ -605,20 +601,6 @@ exports.postUpdateFeedAction = async (req, res, next) => {
                 user.feedAction[feedIndex].unlikeTime.push(unlike);
                 user.feedAction[feedIndex].liked = false;
                 user.numPostLikes--;
-            }
-            // User disliked the post.
-            else if (req.body.dislike) {
-                const dislike = req.body.dislike;
-                user.feedAction[feedIndex].dislikeTime.push(dislike);
-                user.feedAction[feedIndex].disliked = true;
-                user.numPostDisLikes++;
-            }
-            // User undisliked the post.
-            else if (req.body.undislike) {
-                const undislike = req.body.undislike;
-                user.feedAction[feedIndex].undislikeTime.push(undislike);
-                user.feedAction[feedIndex].disliked = false;
-                user.numPostDisLikes--;
             }
             // User read the post.
             else if (req.body.viewed) {

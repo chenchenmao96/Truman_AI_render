@@ -117,10 +117,6 @@ exports.getFeed = function(user_posts, script_feed, user, order, removeFlaggedCo
                     script_feed[0].like = true;
                     script_feed[0].likes++;
                 }
-                if (user.feedAction[feedIndex].disliked) {
-                    script_feed[0].dislike = true;
-                    script_feed[0].dislikes++;
-                }
                 // check if user has flagged (shared in this case) in this post
                 if (user.feedAction[feedIndex].shared) {
                     script_feed[0].share = true;

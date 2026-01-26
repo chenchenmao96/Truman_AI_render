@@ -448,9 +448,10 @@ $(window).on('load', () => {
     //Create a new Comment
     $("i.big.send.link.icon").on('click', addComment);
 
-    //Like/Unlike Post //$('.like.button').on('click', likePost);
-    $('.like.button').on('click', (e) => toggleReaction(e, 'like'));
-    $('.dislike.button').on('click', (e) => toggleReaction(e, 'dislike'));
+    //Like/Unlike Post
+    //$('.like.button').on('click', likePost);
+    $('.ui.like.button').on('click', (e) => toggleReaction(e, 'like'));
+    $('.ui.dislike.button').on('click', (e) => toggleReaction(e, 'dislike'));
 
     //Flag Post
     $('.flag.button').on('click', flagPost);

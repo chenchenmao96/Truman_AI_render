@@ -606,20 +606,6 @@ exports.postUpdateFeedAction = async (req, res, next) => {
                 user.feedAction[feedIndex].liked = false;
                 user.numPostLikes--;
             }
-            // User disliked the post.
-            else if (req.body.dislike) {
-                const dislike = req.body.dislike;
-                user.feedAction[feedIndex].dislikeTime.push(dislike);
-                user.feedAction[feedIndex].disliked = true;
-                user.numPostDisLikes++;
-            }
-            // User undisliked the post.
-            else if (req.body.undislike) {
-                const undislike = req.body.undislike;
-                user.feedAction[feedIndex].undislikeTime.push(undislike);
-                user.feedAction[feedIndex].disliked = false;
-                user.numPostDisLikes--;
-            }
             // User read the post.
             else if (req.body.viewed) {
                 const view = req.body.viewed;

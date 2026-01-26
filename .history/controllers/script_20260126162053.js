@@ -320,7 +320,14 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
                 user.feedAction[feedIndex].comments[commentIndex].liked = false;
                 if (req.body.isUserComment != 'true') user.numCommentLikes--;
             }
-
+            if (req.body.dislike) {
+                post.dislikes = (post.dislikes || 0) + 1;
+                post.dislike = true; // 如果你有这个 bool（可选）
+            }
+            if (req.body.undislike) {
+                post.dislikes = Math.max(0, (post.dislikes || 0) - 1);
+                post.dislike = false; // 可选
+            }
             // User flagged the comment.
             else if (req.body.flag) {
                 const flag = req.body.flag;
@@ -350,23 +357,6 @@ exports.postUpdateFeedActionNoLOGIN = async (req, res, next) => {
                 user.feedAction[feedIndex].unlikeTime.push(unlike);
                 user.feedAction[feedIndex].liked = false;
                 user.numPostLikes--;
-            } // user dislike the post 
-            else if (req.body.dislike) {
-                console.log("HIT DISLIKE BRANCH", req.body.postID);
-                console.log("before push:", user.feedAction[feedIndex].dislikeTime);
-                const dislike = req.body.dislike;
-                user.feedAction[feedIndex].dislikeTime.push(dislike);
-                user.feedAction[feedIndex].disliked = true;
-                user.numPostDisLikes++;
-            }
-            // User undisliked the post.
-            else if (req.body.undislike) {
-                console.log("HIT DISLIKE BRANCH", req.body.postID);
-                console.log("before push:", user.feedAction[feedIndex].dislikeTime);
-                const undislike = req.body.undislike;
-                user.feedAction[feedIndex].undislikeTime.push(undislike);
-                user.feedAction[feedIndex].disliked = false;
-                user.numPostDisLikes--;
             }
             // User read the post.
             else if (req.body.viewed) {
@@ -605,20 +595,6 @@ exports.postUpdateFeedAction = async (req, res, next) => {
                 user.feedAction[feedIndex].unlikeTime.push(unlike);
                 user.feedAction[feedIndex].liked = false;
                 user.numPostLikes--;
-            }
-            // User disliked the post.
-            else if (req.body.dislike) {
-                const dislike = req.body.dislike;
-                user.feedAction[feedIndex].dislikeTime.push(dislike);
-                user.feedAction[feedIndex].disliked = true;
-                user.numPostDisLikes++;
-            }
-            // User undisliked the post.
-            else if (req.body.undislike) {
-                const undislike = req.body.undislike;
-                user.feedAction[feedIndex].undislikeTime.push(undislike);
-                user.feedAction[feedIndex].disliked = false;
-                user.numPostDisLikes--;
             }
             // User read the post.
             else if (req.body.viewed) {

@@ -109,7 +109,7 @@ const userSchema = new mongoose.Schema({
         postClass: String, // Indicates the type of post. Used for post classification purposes.
         mostRecentTime: Date, // Absolute Time, indicates the most recent time the post was viewed
         rereadTimes: { type: Number, default: 0 }, // Indicates the # of times the post has been viewed by user.
-        disliked: { type: Boolean, default: false }, // Indicates if the user has disliked the post
+
         liked: { type: Boolean, default: false }, // Indicates if the user has liked the post
         shared: { type: Boolean, default: false }, // Indicates if the user has flagged the post
         likeTime: [Date], // List of absolute times when the user has liked the post

@@ -140,7 +140,6 @@ async function doPopulate() {
         picture: new_post.picture,
         // 直接用 CSV 里的 num_likes / num_shares，如果没有就给 0
         likes: new_post.num_likes ? Number(new_post.num_likes) : 0,
-        dislikes: new_post.num_dislikes ? Number(new_post.num_dislikes) : 0,
         shares: new_post.num_shares ? Number(new_post.num_shares) : 0,
         actor: act,
         time: timeStringToNum(new_post.time) || null,
