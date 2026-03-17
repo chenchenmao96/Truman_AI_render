@@ -16,55 +16,7 @@ const path = require('path');
 
 const orderFilePath = path.join(__dirname, 'feedOrder.json');
 
-async function getTopicScripts(scriptTO) {
-    let desired = [];
 
-    // food: 57~63，每张图 freal + fAI，共14条
-    if (scriptTO === "food") {
-        for (let pic = 57; pic <= 63; pic++) {
-            desired.push({ class: "freal", picture: `${pic}.jpg` });
-            desired.push({ class: "fAI", picture: `${pic}.jpg` });
-        }
-    }
-    // 1~28：每个 topic 4条
-    else {
-        const topicNum = parseInt(scriptTO, 10);
-        if (!Number.isFinite(topicNum) || topicNum < 1 || topicNum > 28) {
-            throw new Error(`Invalid scriptTO: ${scriptTO}`);
-        }
-
-        const pic1 = 1 + (topicNum - 1) * 2;
-        const pic2 = pic1 + 1;
-
-        desired = [
-            { class: "creal", picture: `${pic1}.jpg` },
-            { class: "cAI", picture: `${pic1}.jpg` },
-            { class: "lreal", picture: `${pic2}.jpg` },
-            { class: "lAI", picture: `${pic2}.jpg` },
-        ];
-    }
-
-    // 一次性查出来
-    const scripts = await Script.find({
-        $or: desired.map(d => ({ class: d.class, picture: d.picture }))
-    })
-        .populate("actor")
-        .populate({
-            path: "comments.actor",
-            model: "Actor",
-            options: { strictPopulate: false }
-        })
-        .exec();
-
-    // 按 desired 顺序排好
-    const map = new Map();
-    for (const s of scripts) {
-        const key = `${s.class}__${s.picture}`;
-        if (!map.has(key)) map.set(key, s);
-    }
-
-    return desired.map(d => map.get(`${d.class}__${d.picture}`)).filter(Boolean);
-}
 
 function saveOrderToFile(order) {
     fs.writeFileSync(orderFilePath, JSON.stringify(order), 'utf8');
@@ -93,55 +45,166 @@ async function getOrCreateFeedOrder(groupId, script_feed) {
     }
     return order[groupId];
 }
+const FEED_ORDER_TOKENS = [
+    "T13", "T12", "T9", "T5", "T22", "T4", "T20",
+    "Park1",
+    "T23", "T14", "T25", "T7", "T24", "T8",
+    "Park2",
+    "T19", "T11", "T17", "T27",
+    "Park3",
+    "T16", "T1",
+    "Cat1",
+    "T10", "T15",
+    "Food1",
+    "T28", "T21", "T3", "T6", "T26",
+    "Food2",
+    "T18", "T2",
+    "Cat2"
+];
+
+const AI_TOPICS_BY_PCT = {
+    "0": [],
+    "10": [9, 27, 23],
+    "40": [9, 27, 23, 13, 19, 16, 8, 24, 28, 22, 5],
+    "80": [9, 27, 23, 13, 19, 16, 8, 24, 28, 22, 5, 4, 2, 21, 17, 26, 10, 25, 6, 3, 15, 7]
+};
+
+function tokenToScriptDescriptor(token, scriptPOL, aiTopicSet) {
+    if (/^T\d+$/.test(token)) {
+        const topicNum = parseInt(token.slice(1), 10);
+
+        const pictureNum = scriptPOL === "lib"
+            ? topicNum * 2
+            : topicNum * 2 - 1;
+
+        const isAI = aiTopicSet.has(topicNum);
+
+        let className;
+        if (scriptPOL === "lib") {
+            className = isAI ? "lAI" : "lreal";
+        } else if (scriptPOL === "con") {
+            className = isAI ? "cAI" : "creal";
+        } else {
+            throw new Error(`Invalid scriptPOL: ${scriptPOL}`);
+        }
+
+        return {
+            key: token,
+            class: className,
+            picture: `${pictureNum}.jpg`
+        };
+    }
+
+const fillerMap = {
+    Park1: { class: "filler", picture: "park1.jpg" },
+    Park2: { class: "filler", picture: "park2.jpg" },
+    Park3: { class: "filler", picture: "park3.jpg" },
+
+    Food1: { class: "filler", picture: "food1.jpg" },
+    Food2: { class: "filler", picture: "food2.jpg" },
+
+    Cat1: { class: "filler", picture: "cat1.jpg" },
+    Cat2: { class: "filler", picture: "cat2.jpg" }
+};
+
+    if (!fillerMap[token]) {
+        throw new Error(`Unknown feed token: ${token}`);
+    }
+
+    return {
+        key: token,
+        ...fillerMap[token]
+    };
+}
+
+async function getConditionScripts(scriptPOL, scriptPCT) {
+    if (!["lib", "con"].includes(scriptPOL)) {
+        throw new Error(`Invalid scriptPOL: ${scriptPOL}`);
+    }
+
+    if (!["0", "10", "40", "80"].includes(String(scriptPCT))) {
+        throw new Error(`Invalid scriptPCT: ${scriptPCT}`);
+    }
+
+    const aiTopicSet = new Set(AI_TOPICS_BY_PCT[String(scriptPCT)]);
+
+    const desired = FEED_ORDER_TOKENS.map(token =>
+        tokenToScriptDescriptor(token, scriptPOL, aiTopicSet)
+    );
+
+    const scripts = await Script.find({
+        $or: desired.map(d => ({ class: d.class, picture: d.picture }))
+    })
+        .populate("actor")
+        .populate({
+            path: "comments.actor",
+            model: "Actor",
+            options: { strictPopulate: false }
+        })
+        .exec();
+
+    const map = new Map();
+    for (const s of scripts) {
+        const key = `${s.class}__${s.picture}`;
+        if (!map.has(key)) map.set(key, s);
+    }
+
+    return desired
+        .map(d => {
+            const found = map.get(`${d.class}__${d.picture}`);
+            if (!found) {
+                console.warn(`Missing script: ${d.key} -> class=${d.class}, picture=${d.picture}`);
+            }
+            return found || null;
+        })
+        .filter(Boolean);
+}
+
 exports.getScriptFeed = async (req, res, next) => {
     try {
-        let participantID = Math.floor(Math.random() * 5000000); // replace this with the next line once we have participantID in URL
-        // let participantID = req.query.pID;
-        let scriptPO = req.query.PO;
-        let scriptPE = req.query.PE;
+        let participantID = Math.floor(Math.random() * 5000000);
+        let scriptPCT = String(req.query.PCT || "");
+        let scriptPOL = req.query.POL;
         let scriptUID = req.query.UID;
-        let scriptTO = req.query.TO;
         let admin = req.query.admin;
 
         if (!scriptUID) {
-            return res.status(400).send('Prolific ID is required');
+            return res.status(400).send("Prolific ID is required");
         }
 
-        // Check if the user already exists
         let existingUser = await User.findOne({ prolificID: scriptUID }).exec();
-        console.log('Existing User:', existingUser);
+        console.log("Existing User:", existingUser);
+
         if (!existingUser) {
-            // If user does not exist, create a new one
             existingUser = new User({
-                email: participantID + '@gmail.com',
-                password: 'password',
+                email: participantID + "@gmail.com",
+                password: "password",
                 username: participantID,
-                AL: scriptPO,
-                CN: scriptPE,
+                PCT: scriptPCT,
+                POL: scriptPOL,
                 prolificID: scriptUID,
-                isAdmin: admin,
+                isAdmin: admin
             });
 
             await existingUser.save();
-        }
-        else {
-            // If user exists, retrieve AL and CN from the database
-            scriptPO = existingUser.PO;
-            scriptPE = existingUser.PE;
+        } else {
+            scriptPCT = existingUser.PCT || scriptPCT;
+            scriptPOL = existingUser.POL || scriptPOL;
             admin = existingUser.isAdmin;
         }
 
         req.logIn(existingUser, async (err) => {
+            if (err) return next(err);
 
-
-            const one_day = 86400000; // Number of milliseconds in a day.
-            const time_now = Date.now(); // Current date.
-            const time_diff = time_now - req.user.createdAt; // Time difference between now and user account creation, in milliseconds.
-            const time_limit = time_diff - one_day; // Date in milliseconds 24 hours ago from now.
+            const one_day = 86400000;
+            const time_now = Date.now();
+            const time_diff = time_now - req.user.createdAt;
             const user = await User.findById(req.user.id);
+
             if (!user) {
-                throw new Error('User not found');
+                throw new Error("User not found");
             }
+
             const current_day = Math.floor(time_diff / one_day);
             if (current_day < process.env.NUM_DAYS) {
                 user.study_days[current_day] += 1;
@@ -149,95 +212,67 @@ exports.getScriptFeed = async (req, res, next) => {
 
             if (admin) {
                 let script_feed = await Script.find()
-                    .sort('-time')
-                    .populate('actor')
-                    .exec();
-
-                let user_posts = user.getPostInPeriod(0, time_diff);
-                user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
-
-                const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true);
-                console.log("Script Size is now: " + finalfeed.length);
-                await user.save();
-                res.render('script', { script: finalfeed, showNewPostIcon: true, user: user });
-            } else if (scriptTO && scriptTO !== "null" && scriptTO !== "undefined" && scriptTO !== "") {
-                const script_feed = await getTopicScripts(scriptTO);
-
-                if (!script_feed || script_feed.length === 0) {
-                    return res.status(404).send("No topic script feed found.");
-                }
-
-                let user_posts = user.getPostInPeriod(0, time_diff);
-                user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
-
-                const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true, true);
-
-                return res.render("script", { script: finalfeed, script_type: scriptTO, user: user });
-            } else {
-                let query = {};
-
-                if (scriptPE === "l") {
-                    query = { "class": { $in: ["lAI", "lreal", "fAI", "freal"] } };
-                } else {
-                    query = { "class": { $in: ["cAI", "creal", "fAI", "freal"] } };
-                }
-
-                let sortCriteria = {};
-
-
-                if (scriptPO === "0") {
-                    sortCriteria = { time: -1 }; // Sort by creation time, latest first
-                } else if (scriptPO === "40") {
-                    sortCriteria = { likes: -1 }; // Sort by number of sum, highest first
-                } else {
-                    // Default sorting (shuffle)
-                    sortCriteria = { _id: 1 }; // This line is a placeholder for sorting by ID if shuffling is not done server-side
-
-                }
-
-                let script_feed = await Script.find(query)
-                    .sort(sortCriteria)
-                    .populate('actor')
+                    .sort("-time")
+                    .populate("actor")
                     .populate({
-                        path: 'comments.actor',
-                        model: 'Actor',
+                        path: "comments.actor",
+                        model: "Actor",
                         options: { strictPopulate: false }
                     })
                     .exec();
 
-                // Shuffle the posts if no specific sorting is applied
-                if (["r"].includes(scriptPO)) {
-                    //script_feed = _.shuffle(script_feed);
-                    const groupId = `${scriptPE}-your-group-id`; // Combine content type with group ID
-                    //const order = await getOrCreateFeedOrder(groupId, script_feed);
-                    //script_feed.sort((a, b) => order.indexOf(a._id.toString()) - order.indexOf(b._id.toString()));
-                    const order = await getOrCreateFeedOrder(groupId, script_feed);
-                    script_feed.sort((a, b) => order.indexOf(a._id.toString()) - order.indexOf(b._id.toString()));
-                }
-                else if (["e"].includes(scriptPO)) {
-                    script_feed.forEach(script => {
-                        script.totalInteractions = (script.likes || 0) + (script.shares || 0) + (script.comments ? script.comments.length : 0);
-                    });
-
-                    // Sort by totalInteractions in descending order
-                    script_feed.sort((a, b) => b.totalInteractions - a.totalInteractions);
-
-                }
-
-                // Ensure script_feed is not empty
-                if (!script_feed || script_feed.length === 0) {
-                    console.log("No script feed found for the given query and sorting criteria.");
-                    return res.status(404).send("No script feed found.");
-                }
                 let user_posts = user.getPostInPeriod(0, time_diff);
                 user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
 
-                // Generate the final feed using the helper function
-                const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, true, true);
+                const finalfeed = helpers.getFeed(
+                    user_posts,
+                    script_feed,
+                    user,
+                    process.env.FEED_ORDER,
+                    true
+                );
 
-                res.render('script', { script: finalfeed, script_type: "", user: user });
+                await user.save();
+                return res.render("script", {
+                    script: finalfeed,
+                    showNewPostIcon: true,
+                    user: user
+                });
             }
 
+            // 新实验条件：2 (lib/con) x 4 (0/10/40/80)
+            if (
+                ["lib", "con"].includes(scriptPOL) &&
+                ["0", "10", "40", "80"].includes(scriptPCT)
+            ) {
+                const script_feed = await getConditionScripts(scriptPOL, scriptPCT);
+
+                if (!script_feed || script_feed.length === 0) {
+                    return res.status(404).send("No condition script feed found.");
+                }
+
+                let user_posts = user.getPostInPeriod(0, time_diff);
+                user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
+
+                const finalfeed = helpers.getFeed(
+                    user_posts,
+                    script_feed,
+                    user,
+                    process.env.FEED_ORDER,
+                    true,
+                    true
+                );
+
+                await user.save();
+
+                return res.render("script", {
+                    script: finalfeed,
+                    script_type: `${scriptPOL}_${scriptPCT}`,
+                    user: user
+                });
+            }
+
+            return res.status(400).send("Invalid POL or PCT condition.");
         });
     } catch (err) {
         next(err);
