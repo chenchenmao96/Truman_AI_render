@@ -1,29 +1,32 @@
 .ui.fluid.card.dim(postClass=val.class, postID=val.id, type='actor', actor_un = val.actor.username, actor_name = val.actor.profile.name, actor_pic = val.actor.profile.picture)
   //- dimmer DIV for flagging
   .content
-    .right.floated.time.meta.actorPost= (user.createdAt.getTime() + val.time)
     a(val.actor.username)     
       img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.actor.profile.picture)
       span=val.actor.profile.name
-  .img.post.image
+  .img.post.image(style="width:100%; height:300px; overflow:hidden; background:transparent;")
     if val.class.includes('AI')
-      img(src='/AI/'+val.picture, style="max-width:100%; width:100%;")
+      img(src='/AI/'+val.picture, style="width:100%; height:100%; object-fit:contain;")
     else
-      img(src='/real/'+val.picture, style="max-width:100%; width:100%;")
+      img(src='/real/'+val.picture, style="width:100%; height:100%; object-fit:contain;")
   .content
     .description=val.body
     .myTimer.hidden 0
-  .ui.bottom.three.attached.icon.buttons
+  .ui.bottom.four.attached.icon.buttons
+    .ui.labeled.button(tabindex='0')
+      .ui.like.button(class=val.like ? "red" : null)
+        i.thumbs.up.icon
+        |  #{val.likes}
+    .ui.labeled.button(tabindex='0')
+      .ui.dislike.button(class=val.dislike ? "red" : null)
+        i.thumbs.down.icon
+        |  #{val.dislikes}
     .ui.reply.button(tabindex='0')
       i.comment.icon
       |  #{val.comments.length}
-    .ui.flag.button(tabindex='0')(class=val.share? "red": null) 
+    .ui.flag.button(tabindex='0')(class=val.share ? "red" : null)
       i.retweet.icon
       |  #{val.shares}
-    .ui.labeled.button(tabindex='0')
-      .ui.like.button(class=val.like? "red": null)
-        i.heart.icon
-        |  #{val.likes}
   if val.comments.length > 0
     .content
       .ui.comments

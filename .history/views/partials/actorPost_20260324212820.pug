@@ -1,7 +1,6 @@
 .ui.fluid.card.dim(postClass=val.class, postID=val.id, type='actor', actor_un = val.actor.username, actor_name = val.actor.profile.name, actor_pic = val.actor.profile.picture)
   //- dimmer DIV for flagging
   .content
-    .right.floated.time.meta.actorPost= (user.createdAt.getTime() + val.time)
     a(val.actor.username)     
       img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.actor.profile.picture)
       span=val.actor.profile.name
