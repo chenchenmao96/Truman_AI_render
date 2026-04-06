@@ -411,10 +411,26 @@ exports.getScriptFeed = async (req, res, next) => {
             else if (scriptIMG) {
     const script_feed = await getImageClassScripts(scriptIMG);
 
+    if (!script_feed || script_feed.length === 0) {
+        return res.status(404).send("No scripts found for this IMG class.");
+    }
+
+    let user_posts = user.getPostInPeriod(0, time_diff);
+    user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
+
+    const finalfeed = helpers.getFeed(
+        user_posts,
+        script_feed,
+        user,
+        process.env.FEED_ORDER,
+        true,
+        true
+    );
+
     await user.save();
 
     return res.render("script", {
-        script: script_feed,
+        script: script_feed, // 如果你就是想直接 1-30 展示
         script_type: `IMG_${scriptIMG}`,
         user: user
     });

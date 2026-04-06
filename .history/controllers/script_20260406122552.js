@@ -84,81 +84,6 @@ const AI_TOPICS_BY_PCT = {
     "40": [18, 3, 27, 9, 1, 22, 14, 6, 30, 11, 25, 4],
     "80": [18, 3, 27, 9, 1, 22, 14, 6, 30, 11, 25, 4, 19, 8, 2, 24, 13, 29, 7, 16, 10, 21, 5, 28]
 };
-async function getImageClassScripts(scriptIMG) {
-    if (!scriptIMG) {
-        throw new Error("IMG is required.");
-    }
-
-    let isCon = scriptIMG.includes("con");
-    let isLib = scriptIMG.includes("lib");
-    let isAI = scriptIMG.includes("ai");
-    let isReal = scriptIMG.includes("real");
-
-    if ((!isCon && !isLib) || (!isAI && !isReal)) {
-        throw new Error("Invalid IMG value.");
-    }
-
-    let mappedClass;
-    if (isCon && isAI) mappedClass = "cAI";
-    else if (isCon && isReal) mappedClass = "creal";
-    else if (isLib && isAI) mappedClass = "lAI";
-    else if (isLib && isReal) mappedClass = "lreal";
-    else throw new Error("Invalid IMG combination.");
-
-    const topicNums = Array.from({ length: 30 }, (_, i) => i + 1);
-
-    const scripts = await Promise.all(
-        topicNums.map(async (topicNum) => {
-            const pictureName = isCon
-                ? `${topicNum * 2 - 1}.jpg`
-                : `${topicNum * 2}.jpg`;
-
-            const script = await Script.findOne({
-                class: mappedClass,
-                picture: pictureName
-            })
-                .populate("actor")
-                .populate({
-                    path: "comments.actor",
-                    model: "Actor",
-                    options: { strictPopulate: false }
-                })
-                .exec();
-
-            return script;
-        })
-    );
-
-    const missingTopics = topicNums.filter((_, i) => !scripts[i]);
-    if (missingTopics.length > 0) {
-        throw new Error(
-            `Missing scripts for ${scriptIMG}. Missing topics: ${missingTopics.join(", ")}`
-        );
-    }
-
-    return scripts;
-}
-function mapIMGToClass(scriptIMG) {
-    const mapping = {
-        "con-ai": "cAI",
-        "con-real": "creal",
-        "lib-ai": "lAI",
-        "lib-real": "lreal"
-    };
-
-    return mapping[scriptIMG];
-}
-function getPictureNameForIMG(scriptIMG, topicNum) {
-    if (scriptIMG.startsWith("con-")) {
-        return `${topicNum * 2 - 1}.jpg`;
-    }
-
-    if (scriptIMG.startsWith("lib-")) {
-        return `${topicNum * 2}.jpg`;
-    }
-
-    throw new Error("Invalid IMG prefix.");
-}
 async function getTopicScripts(topic) {
     const topicNum = Number(topic);
 
@@ -408,17 +333,7 @@ exports.getScriptFeed = async (req, res, next) => {
                     user: user
                 });
             }
-            else if (scriptIMG) {
-    const script_feed = await getImageClassScripts(scriptIMG);
 
-    await user.save();
-
-    return res.render("script", {
-        script: script_feed,
-        script_type: `IMG_${scriptIMG}`,
-        user: user
-    });
-}
             return res.status(400).send("Invalid POL or PCT condition.");
         });
     } catch (err) {
