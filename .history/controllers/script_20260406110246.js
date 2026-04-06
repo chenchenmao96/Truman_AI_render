@@ -300,37 +300,7 @@ exports.getScriptFeed = async (req, res, next) => {
             }
             else if (scriptTOP)
             {
-                const topicNum = Number(scriptTOP);
 
-                if (!Number.isInteger(topicNum) || topicNum < 1 || topicNum > 30) {
-                    return res.status(400).send("Invalid TOP value. It must be a number from 1 to 30.");
-                }
-
-                const script_feed = await getTopicScripts(topicNum);
-
-                if (!script_feed || script_feed.length === 0) {
-                    return res.status(404).send("No scripts found for this topic.");
-                }
-
-                let user_posts = user.getPostInPeriod(0, time_diff);
-                user_posts.sort((a, b) => b.relativeTime - a.relativeTime);
-
-                const finalfeed = helpers.getFeed(
-                    user_posts,
-                    script_feed,
-                    user,
-                    process.env.FEED_ORDER,
-                    true,
-                    true
-                );
-
-                await user.save();
-
-                return res.render("script", {
-                    script: finalfeed,
-                    script_type: `TOP_${topicNum}`,
-                    user: user
-                });
             }
 
             return res.status(400).send("Invalid POL or PCT condition.");
